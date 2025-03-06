@@ -1,0 +1,70 @@
+name: Autograding Tests
+'on':
+- push
+- repository_dispatch
+permissions:
+  checks: write
+  actions: read
+  contents: read
+jobs:
+  run-autograding-tests:
+    runs-on: ubuntu-latest
+    if: github.actor != 'github-classroom[bot]'
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: Ship
+      id: ship
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: Ship
+        setup-command: ''
+        command: gradle -p ./battleship runShipTest
+        timeout: 10
+        max-score: 3
+    - name: Location
+      id: location
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: Location
+        setup-command: ''
+        command: gradle -p ./battleship runLocationTest
+        timeout: 10
+        max-score: 3
+    - name: Grid
+      id: grid
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: Grid
+        setup-command: ''
+        command: gradle -p ./battleship runGridTest
+        timeout: 10
+        max-score: 3
+    - name: Player
+      id: player
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: Player
+        setup-command: ''
+        command: gradle -p ./battleship runPlayerTest
+        timeout: 10
+        max-score: 3
+    - name: Freebie
+      id: freebie
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: Freebie
+        setup-command: ''
+        command: gradle -p ./battleship runFreebieTest
+        timeout: 10
+        max-score: 8
+    - name: Autograding Reporter
+      uses: classroom-resources/autograding-grading-reporter@v1
+      env:
+        SHIP_RESULTS: "${{steps.ship.outputs.result}}"
+        LOCATION_RESULTS: "${{steps.location.outputs.result}}"
+        GRID_RESULTS: "${{steps.grid.outputs.result}}"
+        PLAYER_RESULTS: "${{steps.player.outputs.result}}"
+        FREEBIE_RESULTS: "${{steps.freebie.outputs.result}}"
+      with:
+        runners: ship,location,grid,player,freebie
